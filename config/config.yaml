@@ -1,0 +1,26 @@
+# Basic project configuration
+llm:
+  provider: "mock" # Using mock to avoid model loading delays
+  huggingface_model_id: "microsoft/phi-2" # Good for reasoning and analysis tasks, fits in 10GB VRAM
+  huggingface_task: "text-generation"
+  temperature: 0.1 # Lower temperature for more coherent responses
+
+rag:
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  chunk_size: 500
+  chunk_overlap: 50
+  vector_db_collection: "site_feasibility"
+  top_k_results: 3
+
+tools:
+  # Configuration for specific tools can go here
+  # e.g. weather_api_key: "YOUR_API_KEY" (to be sourced from .env)
+  default_latitude: 37.2
+  default_longitude: -121.9
+  default_capacity_mw: 20.0
+  default_target_latitude: 37.3  # For transmission, e.g., San Jose
+  default_target_longitude: -122.0 # For transmission, e.g., San Jose
+
+logging:
+  level: "INFO" # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s" 
