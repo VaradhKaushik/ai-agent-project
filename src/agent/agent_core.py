@@ -6,8 +6,8 @@ from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema import HumanMessage, AIMessage
 from langchain.tools import BaseTool
 
-from llm.llm_loader import load_llm
-from tools import (
+from ..llm.llm_loader import load_llm
+from ..tools import (
     # Original tools
     future_weather, solar_yield, cost_model, transmission_cost, grid_connection_info,
     # New API tools
@@ -15,9 +15,9 @@ from tools import (
     energy_news_search, real_solar_calculator, market_analysis_search,
     get_enhanced_tools
 )
-from rag.rag_pipeline import get_rag_context
-from utils.config import get_config
-from utils.logging_config import get_logger
+from ..rag.rag_pipeline import get_rag_context
+from ..utils.config import get_config
+from ..utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 config = get_config()
@@ -143,7 +143,7 @@ def run_solar_agent_from_query(query: str) -> str:
 
 if __name__ == '__main__':
     # Test the agent
-    from src.utils.logging_config import setup_logging
+    from ..utils.logging_config import setup_logging
     setup_logging()
 
     logger.info("--- Testing True LLM Tool Calling Agent ---")

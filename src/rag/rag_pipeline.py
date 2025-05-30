@@ -6,8 +6,8 @@ from langchain_core.documents import Document
 from pathlib import Path
 from typing import List, Optional
 
-from utils.config import get_config
-from utils.logging_config import get_logger
+from ..utils.config import get_config
+from ..utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 config = get_config()
@@ -229,7 +229,7 @@ def get_rag_context(query: str) -> str:
     return pipeline.get_context_for_query(query)
 
 if __name__ == '__main__':
-    from src.utils.logging_config import setup_logging
+    from ..utils.logging_config import setup_logging # Adjusted for direct execution
     setup_logging() # Ensure logging is set up
 
     logger.info("--- Testing RAG Pipeline ---")

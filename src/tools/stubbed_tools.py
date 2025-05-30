@@ -3,8 +3,8 @@ from typing import Dict, List, Any, Tuple
 from math import radians, sin, cos, sqrt, atan2
 from langchain.tools import tool
 
-from utils.config import get_config
-from utils.logging_config import get_logger
+from ..utils.config import get_config
+from ..utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 config = get_config()
@@ -168,7 +168,7 @@ def grid_connection_info(lat: float, lon: float) -> str:
 
 
 if __name__ == '__main__':
-    from src.utils.logging_config import setup_logging
+    from ..utils.logging_config import setup_logging
     setup_logging() # Ensure logging is set up
 
     logger.info("--- Testing Stubbed Tools ---")

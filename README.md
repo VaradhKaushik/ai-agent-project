@@ -128,6 +128,18 @@ ai-agent-project/
 
 ---
 
+## Recommended Way to Run
+
+For the application to correctly resolve all internal module imports, it's best to run it as a package from the project's root directory.
+
+*   **Interactive Mode (Recommended):**
+    ```bash
+    python -m src.app_main --interactive
+    ```
+    This command tells Python to run the `app_main` module located within the `src` package.
+
+---
+
 ## RAG Quick Start (New)
 
 To use the RAG capabilities with the two NREL PDFs:
@@ -150,39 +162,114 @@ To use the RAG capabilities with the two NREL PDFs:
 
 4.  **Query using the RAG-enabled agent:**
     The `rag_lookup` tool will be automatically used by the agent if your query is best answered by the ingested documents.
-    ```bash
-    python src/app_main.py --query "What is the BOS cost per watt in 2023?"
+
+    *   **Using a specific query (from project root):**
+        ```bash
+        python -m src.app_main --query "What is the BOS cost per watt in 2023?"
+        ```
+    *   **In interactive mode (from project root):**
+        ```bash
+        python -m src.app_main --interactive
+        ```
+        Then, when prompted, enter your query:
+        ```
+        Your Query: What is the BOS cost per watt in 2023
+        ```
+
+    **Example RAG Interaction:**
+
+    When you run the agent with a query like "What is the BOS cost per watt in 2023" or "what is Plane-of-Array Irradiance?", you should see output similar to this (log details and exact LLM responses may vary):
+
     ```
-    Or in interactive mode:
-    ```bash
-    python src/app_main.py --interactive
+    (.venv) varadh@DESKTOP-HF5G2UF:~/Project/ai-agent-project$ python -m src.app_main --interactive
+    /home/varadh/Project/ai-agent-project/agent/tools/rag_tool.py:16: LangChainDeprecationWarning: The method `Chain.run` was deprecated in langchain 0.1.0 and will be removed in 1.0. Use :meth:`~invoke` instead.
+      return rag_chain.run(query)
+
+    I'm sorry, I cannot accurately answer this question as I do not have enough information about the BOS (balance of system) cost trends in the solar industry for the year 2023. It is best to consult a solar industry expert or do further research on projected BOS cost trends for a more accurate answer.I don't have specific data on the BOS (balance of system) cost per watt in 2023. It's recommended to consult a solar industry expert or conduct further research on projected BOS cost trends for accurate information.
+
+    > Finished chain.
+    2025-05-30 13:03:39,297 - src.agent.agent_core - INFO - LLM analysis completed successfully. Response length: 215
+
+    Agent Response:
+    I don't have specific data on the BOS (balance of system) cost per watt in 2023. It's recommended to consult a solar industry expert or conduct further research on projected BOS cost trends for accurate information.
+
+    Your Query: what is Plane-of-Array Irradiance?
+    2025-05-30 13:04:15,915 - __main__ - INFO - Interactive query: what is Plane-of-Array Irradiance?
+    2025-05-30 13:04:15,916 - src.agent.agent_core - INFO - Starting LLM-driven analysis for query: what is Plane-of-Array Irradiance?
+
+
+    > Entering new AgentExecutor chain...
+
+    Invoking: `rag_lookup` with `Plane-of-Array Irradiance`
+
+
+     The plane-of-array irradiance is the total amount of solar irradiance that hits the surface of a solar panel. It is calculated by summing the beam, diffuse, and ground-reflected components of irradiance using a specific algorithm.**FEASIBILITY ANALYSIS**
+
+    **Location & Solar Resource:**
+    The plane-of-array irradiance represents the total solar irradiance that hits the surface of a solar panel, crucial for determining the energy production potential of a solar system.
+
+    **Technical Assessment:**
+    Understanding the plane-of-array irradiance is essential for accurate solar energy production estimates and system design.
+
+    **Financial Analysis:**
+    It impacts the efficiency and output of a solar system, influencing the financial returns and payback period of the project.
+
+    **Market Conditions:**
+    Knowledge of the plane-of-array irradiance helps in assessing the competitiveness and viability of solar projects in different locations.
+
+    **Recommendation:**
+    Consider the plane-of-array irradiance data in the design and evaluation of solar projects to optimize energy production and financial returns.
+
+    > Finished chain.
+    2025-_05-30 13:04:20,562 - src.agent.agent_core - INFO - LLM analysis completed successfully. Response length: 866
+
+    Agent Response:
+    **FEASIBILITY ANALYSIS**
+
+    **Location & Solar Resource:**
+    The plane-of-array irradiance represents the total solar irradiance that hits the surface of a solar panel, crucial for determining the energy production potential of a solar system.
+
+    **Technical Assessment:**
+    Understanding the plane-of-array irradiance is essential for accurate solar energy production estimates and system design.
+
+    **Financial Analysis:**
+    It impacts the efficiency and output of a solar system, influencing the financial returns and payback period of the project.
+
+    **Market Conditions:**
+    Knowledge of the plane-of-array irradiance helps in assessing the competitiveness and viability of solar projects in different locations.
+
+    **Recommendation:**
+    Consider the plane-of-array irradiance data in the design and evaluation of solar projects to optimize energy production and financial returns.
+
+    Your Query: quit
+    2025-05-30 13:04:44,772 - __main__ - INFO - Exiting interactive mode.
+    2025-05-30 13:04:44,773 - __main__ - INFO - Solar Feasibility Agent Application Finished.
     ```
-    Then ask: `What is the BOS cost per watt in 2023?`
 
 ---
 
 ## 5. Running the Agent
 
 To run the agent, navigate to the project's root directory (`ai-agent-project/`) in your terminal.
-Then use the following commands:
+Always use the `python -m src.app_main` command to ensure modules are loaded correctly.
 
-*   **Interactive Mode:**
+*   **Interactive Mode (Recommended):**
     ```bash
-    python src/app_main.py --interactive
+    python -m src.app_main --interactive
     ```
     If no arguments are provided, it also defaults to interactive mode:
     ```bash
-    python src/app_main.py
+    python -m src.app_main
     ```
 
 *   **Single Query Mode:**
     ```bash
-    python src/app_main.py --query "Your question here?"
+    python -m src.app_main --query "Your question here?"
     ```
 
 *   **Demo Mode (Predefined Queries):**
     ```bash
-    python src/app_main.py --demo
+    python -m src.app_main --demo
     ```
 
 ---

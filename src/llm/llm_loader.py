@@ -4,8 +4,8 @@ from langchain_openai import ChatOpenAI
 from typing import Any, List, Mapping, Optional, Dict
 import os
 
-from utils.config import get_config
-from utils.logging_config import get_logger
+from ..utils.config import get_config
+from ..utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
@@ -50,7 +50,7 @@ def load_llm() -> Any:
         return None
 
 if __name__ == '__main__':
-    from src.utils.logging_config import setup_logging
+    from ..utils.logging_config import setup_logging
     setup_logging()
     
     print("\n--- Testing OpenAI LLM Loader ---")

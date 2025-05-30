@@ -5,8 +5,8 @@ from langchain.tools import tool
 import time
 from datetime import datetime
 
-from utils.config import get_config
-from utils.logging_config import get_logger
+from ..utils.config import get_config
+from ..utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 config = get_config()
