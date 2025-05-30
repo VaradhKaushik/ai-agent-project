@@ -1,0 +1,9 @@
+California ISO Interconnection Queue Summary 2023
+
+The California Independent System Operator (CAISO) manages the electrical grid for approximately 80% of California and small portions of Nevada. As of 2023, the interconnection queue contains over 150 GW of proposed renewable energy projects, with solar photovoltaic projects comprising roughly 60% of this capacity.
+
+Key findings from the 2023 interconnection study include: (1) Solar projects in the Central Valley and Mojave Desert regions show the highest feasibility scores due to excellent solar irradiance (5.5-6.2 kWh/m²/day annually) and existing transmission infrastructure. (2) Transmission upgrade costs vary significantly by location, ranging from $50,000 to $500,000 per MW depending on distance to existing substations and required voltage levels. (3) Environmental permitting remains the primary bottleneck, with projects in designated renewable energy zones experiencing 18-24 month shorter approval timelines compared to greenfield sites.
+
+Financial projections indicate that utility-scale solar projects (>20 MW) in optimal California locations can achieve levelized costs of electricity (LCOE) between $35-$45 per MWh when including federal tax incentives. The analysis assumes standard engineering procurement and construction (EPC) costs of $1.0-1.2 million per MW AC capacity, with annual operations and maintenance costs of $18,000-$22,000 per MW.
+
+Grid stability studies show that California can reliably accommodate up to 85% renewable energy penetration by 2030 with appropriate storage and demand response programs. Critical transmission corridors include the Path 26 upgrade between Northern and Southern California, and new 500kV lines connecting desert solar resources to coastal load centers. 
