@@ -7,7 +7,7 @@ This project demonstrates an AI agent for solar site feasibility analysis. It sh
 *   An agent orchestrated with **LangChain**.
 *   A set of **tools** (weather, solar-yield, cost, transmission, grid info). Currently, these are primarily **stubbed values**, but the framework allows for easy integration of real APIs.
 *   A **RAG (Retrieval Augmented Generation) pipeline** using a local vector store (ChromaDB) and a small document set to answer contextual questions.
-*   LLM interaction via **Hugging Face Transformers** (e.g., with `distilgpt2` or other compatible models) or a mock LLM if issues arise.
+*   LLM interaction via **Hugging Face Transformers** (e.g., with `microsoft/phi-2` or other compatible models) or a mock LLM if issues arise.
 *   A structured project layout with configuration management, logging, and a CLI entry point.
 
 This system is designed to assist in the initial stages of evaluating potential solar energy project sites by integrating various data points and providing AI-generated summaries.
@@ -18,7 +18,7 @@ This system is designed to assist in the initial stages of evaluating potential 
 
 | Layer                 | Choice                                           | Notes                                                                 |
 | --------------------- | ------------------------------------------------ | --------------------------------------------------------------------- |
-| LLM Runtime           | **Hugging Face Transformers** (`distilgpt2` default) | Runs models locally. Mock LLM available.                              |
+| LLM Runtime           | **Hugging Face Transformers** (`microsoft/phi-2` default) | Runs models locally. Mock LLM available.                              |
 | Core Framework        | **LangChain**                                    | For agent structure, tool integration, RAG.                         |
 | Vector DB             | **Chroma** (in-memory)                           | For RAG.                                                              |
 | Embeddings            | `sentence-transformers/all-MiniLM-L6-v2`         | For RAG, runs on CPU.                                               |
@@ -31,12 +31,11 @@ This system is designed to assist in the initial stages of evaluating potential 
 ## 3. Project Structure
 
 ```
-site_feasibility_agent/
+ai-agent-project/
 ├── config/                     # Configuration files
-│   ├── config.yaml             # Main configuration (LLM, RAG, tools defaults)
-│   └── .env.example            # Example for .env file (for API keys, etc.)
+│   └── config.yaml             # Main configuration (LLM, RAG, tools defaults)
 ├── data/                       # Data files for RAG or tools
-│   └── toy_grid_doc.txt      # Example document for RAG
+│   └── toy_grid_doc.txt        # Example document for RAG
 ├── src/                        # Source code
 │   ├── __init__.py
 │   ├── agent/                  # Core agent logic
@@ -51,17 +50,15 @@ site_feasibility_agent/
 │   ├── tools/                  # Agent tools
 │   │   ├── __init__.py
 │   │   └── stubbed_tools.py    # Current stubbed tool implementations
-│   │   └── (potential for api_tools.py etc.)
 │   ├── utils/                  # Utility modules
 │   │   ├── __init__.py
 │   │   ├── config.py           # Configuration loader
 │   │   └── logging_config.py   # Logging setup
 │   └── app_main.py             # Main application CLI entry point
 ├── tests/                      # Unit and integration tests (to be added)
-│   ├── __init__.py
-│   └── (...)
+│   └── __init__.py
 ├── .gitignore                  # Specifies intentionally untracked files
-├── LICENSE                     # Project license (e.g., MIT)
+├── LICENSE                     # Project license (MIT)
 ├── README.md                   # This document
 └── requirements.txt            # Python dependencies
 ```
@@ -72,8 +69,8 @@ site_feasibility_agent/
 
 1.  **Clone the repository:**
     ```bash
-    git clone <repository_url>
-    cd site_feasibility_agent
+    git clone https://github.com/VaradhKaushik/ai-agent-project.git
+    cd ai-agent-project
     ```
 
 2.  **Set up a Python virtual environment (recommended):**
@@ -88,23 +85,24 @@ site_feasibility_agent/
     ```
     This will install `transformers`, `torch`, and other necessary libraries. The first time you run the agent with a new Hugging Face model (specified in `config/config.yaml`), it will be downloaded automatically. This download process may take some time depending on the model size and your internet connection.
 
-4.  **Configure Environment Variables (Optional but Recommended):**
-    *   Copy `config/.env.example` to `config/.env`:
+4.  **Configure Environment Variables (Optional):**
+    *   Create a `.env` file in the `config/` directory if you need to add API keys for future tool integrations:
         ```bash
-        cp config/.env.example config/.env
+        touch config/.env
         ```
-    *   Edit `config/.env` to add any necessary API keys if you integrate tools that require them (e.g., a `WEATHER_API_KEY`).
+    *   Add any necessary API keys if you integrate tools that require them (e.g., `WEATHER_API_KEY=your_key_here`).
 
 5.  **Review Configuration (`config/config.yaml`):**
-    *   The primary LLM provider is `huggingface` by default. You can change `llm.huggingface_model_id` in `config/config.yaml` to use other compatible models from the Hugging Face Hub (e.g., `gpt2`, `google/flan-t5-base`). Be mindful of model size for local execution, as larger models require more resources (RAM/VRAM) and will be slower on CPU.
-    *   To use the mock LLM (e.g., for quick testing without model downloads), set `llm.provider: "mock"` in `config/config.yaml`.
+    *   The primary LLM provider can be set to `huggingface` or `mock`. By default, it's set to `mock` for quick testing.
+    *   The default Hugging Face model is `microsoft/phi-2`. You can change `llm.huggingface_model_id` in `config/config.yaml` to use other compatible models from the Hugging Face Hub (e.g., `gpt2`, `distilgpt2`, `google/flan-t5-base`). Be mindful of model size for local execution, as larger models require more resources (RAM/VRAM) and will be slower on CPU.
+    *   To use the mock LLM (recommended for quick testing without model downloads), ensure `llm.provider: "mock"` in `config/config.yaml`.
     *   Review other settings for RAG, tools, and logging if needed.
 
 ---
 
 ## 5. Running the Agent
 
-To run the agent, navigate to the project's root directory (`site_feasibility_agent/`) in your terminal.
+To run the agent, navigate to the project's root directory (`ai-agent-project/`) in your terminal.
 Then use the following commands:
 
 *   **Interactive Mode:**
@@ -139,7 +137,21 @@ Then use the following commands:
 
 ---
 
-## 7. Potential Future Enhancements
+## 7. Dependencies
+
+The project uses the following key dependencies (see `requirements.txt` for complete list):
+
+*   **LangChain** (0.1.0) - Core framework for agent orchestration
+*   **Transformers** (4.36.2) - Hugging Face model loading
+*   **ChromaDB** (0.4.22) - Vector database for RAG
+*   **Sentence Transformers** (2.2.2) - Embeddings for RAG
+*   **PyTorch** (2.1.2) - ML framework for model inference
+*   **PyYAML** (6.0.1) - Configuration file parsing
+*   **Python-dotenv** (1.0.1) - Environment variable management
+
+---
+
+## 8. Potential Future Enhancements
 
 This project serves as a foundation. Potential areas for future development include:
 
