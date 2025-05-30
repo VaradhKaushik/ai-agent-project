@@ -3,9 +3,9 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-CONFIG_DIR = Path(__file__).resolve().parent.parent.parent / "config"
-DEFAULT_CONFIG_PATH = CONFIG_DIR / "config.yaml"
-ENV_PATH = CONFIG_DIR / ".env"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DEFAULT_CONFIG_PATH = PROJECT_ROOT / "config" / "config.yaml"
+ENV_PATH = PROJECT_ROOT / ".env"
 
 _config = None
 

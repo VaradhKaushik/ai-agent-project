@@ -1,16 +1,14 @@
-# Site Feasibility Agent
+# Solar Feasibility Agent
 
 ## 1. Purpose
 
 This project demonstrates an AI agent for solar site feasibility analysis. It showcases:
 
-*   An agent orchestrated with **LangChain**.
-*   A set of **tools** (weather, solar-yield, cost, transmission, grid info). Currently, these are primarily **stubbed values**, but the framework allows for easy integration of real APIs.
-*   A **RAG (Retrieval Augmented Generation) pipeline** using a local vector store (ChromaDB) and a small document set to answer contextual questions.
-*   LLM interaction via **Hugging Face Transformers** (e.g., with `microsoft/phi-2` or other compatible models) or a mock LLM if issues arise.
+*   An agent orchestrated with **LangChain**, leveraging OpenAI's `gpt-3.5-turbo` for tool calling and reasoning.
+*   A set of **tools** including real API integrations (NREL, OpenWeatherMap, Geocoding, Web Search) and some helper/stubbed tools for cost and grid information.
 *   A structured project layout with configuration management, logging, and a CLI entry point.
 
-This system is designed to assist in the initial stages of evaluating potential solar energy project sites by integrating various data points and providing AI-generated summaries.
+This system is designed to assist in the initial stages of evaluating potential solar energy project sites by intelligently invoking tools to gather data and provide AI-generated feasibility summaries.
 
 ---
 
@@ -18,11 +16,13 @@ This system is designed to assist in the initial stages of evaluating potential 
 
 | Layer                 | Choice                                           | Notes                                                                 |
 | --------------------- | ------------------------------------------------ | --------------------------------------------------------------------- |
-| LLM Runtime           | **Hugging Face Transformers** (`microsoft/phi-2` default) | Runs models locally. Mock LLM available.                              |
-| Core Framework        | **LangChain**                                    | For agent structure, tool integration, RAG.                         |
-| Vector DB             | **Chroma** (in-memory)                           | For RAG.                                                              |
-| Embeddings            | `sentence-transformers/all-MiniLM-L6-v2`         | For RAG, runs on CPU.                                               |
-| Configuration         | YAML (`config/config.yaml`) & `.env`             | For managing settings and API keys.                                   |
+| LLM                   | **OpenAI `gpt-3.5-turbo`**                       | Utilized for its strong tool-calling and reasoning capabilities.      |
+| Core Framework        | **LangChain**                                    | For agent structure, tool integration, and prompt management.         |
+| API Tools             | NREL, OpenWeatherMap, DuckDuckGo, Nominatim      | For solar data, weather, web search, geocoding.                       |
+| Helper/Stubbed Tools  | Cost Model, Transmission, Grid Info              | Provide estimates for financial and grid aspects.                     |
+| Vector DB             | **Chroma** (in-memory)                           | For RAG (if RAG components are actively used).                        |
+| Embeddings            | `sentence-transformers/all-MiniLM-L6-v2`         | For RAG (if RAG components are actively used).                        |
+| Configuration         | YAML (`config/config.yaml`) & `.env` (root)      | For managing settings and API keys.                                   |
 | Logging               | Python `logging` module                          | Centralized logging setup.                                            |
 | CLI                   | Python `argparse`                                | For application interaction.                                          |
 
@@ -33,23 +33,24 @@ This system is designed to assist in the initial stages of evaluating potential 
 ```
 ai-agent-project/
 ├── config/                     # Configuration files
-│   └── config.yaml             # Main configuration (LLM, RAG, tools defaults)
-├── data/                       # Data files for RAG or tools
+│   └── config.yaml             # Main configuration (LLM, tools defaults)
+├── data/                       # Data files for RAG or tools (if used)
 │   └── toy_grid_doc.txt        # Example document for RAG
 ├── src/                        # Source code
 │   ├── __init__.py
 │   ├── agent/                  # Core agent logic
 │   │   ├── __init__.py
-│   │   └── agent_core.py       # Main SiteFeasibilityAgent class
+│   │   └── agent_core.py       # SolarFeasibilityAgent class
 │   ├── llm/                    # LLM loading and interaction
 │   │   ├── __init__.py
-│   │   └── llm_loader.py       # Loads Hugging Face or Mock LLM
-│   ├── rag/                    # RAG pipeline components
+│   │   └── llm_loader.py       # Loads the OpenAI LLM
+│   ├── rag/                    # RAG pipeline components (if used)
 │   │   ├── __init__.py
-│   │   └── rag_pipeline.py     # SiteFeasibilityRAG class
+│   │   └── rag_pipeline.py     # RAG class
 │   ├── tools/                  # Agent tools
 │   │   ├── __init__.py
-│   │   └── stubbed_tools.py    # Current stubbed tool implementations
+│   │   ├── api_tools.py        # Tools interacting with external APIs
+│   │   └── stubbed_tools.py    # Stubbed or simplified tool implementations
 │   ├── utils/                  # Utility modules
 │   │   ├── __init__.py
 │   │   ├── config.py           # Configuration loader
@@ -57,6 +58,7 @@ ai-agent-project/
 │   └── app_main.py             # Main application CLI entry point
 ├── tests/                      # Unit and integration tests (to be added)
 │   └── __init__.py
+├── .env                        # Environment variables (e.g., API keys) - ROOT LEVEL
 ├── .gitignore                  # Specifies intentionally untracked files
 ├── LICENSE                     # Project license (MIT)
 ├── README.md                   # This document
@@ -75,28 +77,31 @@ ai-agent-project/
 
 2.  **Set up a Python virtual environment (recommended):**
     ```bash
-    python3 -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    python3 -m venv .venv
+    source .venv/bin/activate  # On Windows: .venv\\Scripts\\activate
     ```
 
 3.  **Install Python dependencies:**
     ```bash
     pip install -r requirements.txt
     ```
-    This will install `transformers`, `torch`, and other necessary libraries. The first time you run the agent with a new Hugging Face model (specified in `config/config.yaml`), it will be downloaded automatically. This download process may take some time depending on the model size and your internet connection.
 
-4.  **Configure Environment Variables (Optional):**
-    *   Create a `.env` file in the `config/` directory if you need to add API keys for future tool integrations:
+4.  **Configure Environment Variables:**
+    *   Create a `.env` file in the **project root directory**:
         ```bash
-        touch config/.env
+        touch .env
         ```
-    *   Add any necessary API keys if you integrate tools that require them (e.g., `WEATHER_API_KEY=your_key_here`).
+    *   Add your OpenAI API key and any other necessary API keys to this `.env` file:
+        ```env
+        OPENAI_API_KEY="your_openai_api_key_here"
+        # NREL_API_KEY="your_nrel_api_key_here" # Optional, for more accurate solar data
+        # OPENWEATHERMAP_API_KEY="your_openweathermap_api_key_here" # Optional, for more detailed weather
+        ```
+        The agent can function with estimated data if NREL or OpenWeatherMap keys are not provided, but real API keys are recommended for accuracy.
 
 5.  **Review Configuration (`config/config.yaml`):**
-    *   The primary LLM provider can be set to `huggingface` or `mock`. By default, it's set to `mock` for quick testing.
-    *   The default Hugging Face model is `microsoft/phi-2`. You can change `llm.huggingface_model_id` in `config/config.yaml` to use other compatible models from the Hugging Face Hub (e.g., `gpt2`, `distilgpt2`, `google/flan-t5-base`). Be mindful of model size for local execution, as larger models require more resources (RAM/VRAM) and will be slower on CPU.
-    *   To use the mock LLM (recommended for quick testing without model downloads), ensure `llm.provider: "mock"` in `config/config.yaml`.
-    *   Review other settings for RAG, tools, and logging if needed.
+    *   The LLM provider is now primarily OpenAI.
+    *   You can adjust tool-specific default parameters in `config.yaml` if needed.
 
 ---
 
@@ -107,61 +112,145 @@ Then use the following commands:
 
 *   **Interactive Mode:**
     ```bash
-    python -m src.app_main --interactive
+    python src/app_main.py --interactive
     ```
     If no arguments are provided, it also defaults to interactive mode:
     ```bash
-    python -m src.app_main
+    python src/app_main.py
     ```
 
 *   **Single Query Mode:**
     ```bash
-    python -m src.app_main --query "Your question here?"
+    python src/app_main.py --query "Your question here?"
     ```
 
 *   **Demo Mode (Predefined Queries):**
     ```bash
-    python -m src.app_main --demo
+    python src/app_main.py --demo
     ```
 
 ---
 
-## 6. Key Data & Assumptions (Current Stubbed Implementation)
+## 6. Agent Capabilities & Tools
 
-*   **Weather Outlook (`stubbed_tools.py`):** Fixed monthly GHI, temp values (CSV string).
-*   **Solar Yield (`stubbed_tools.py`):** Returns a value based on a fixed 1600 kWh/kWp-year specific yield multiplied by capacity.
-*   **Cost Model (`stubbed_tools.py`):** Fixed $1M/MW CapEx, $20k/MW-year OpEx by default.
-*   **Transmission Cost (`stubbed_tools.py`):** Uses Haversine distance and a flat $0.03/kWh/100km cost by default.
-*   **Grid Connection Info (`stubbed_tools.py`):** Returns stubbed regional info based on coarse lat/lon bucketing.
-*   **RAG Document (`data/toy_grid_doc.txt`):** A small text file for RAG demonstration.
+The agent leverages a suite of tools to gather information and perform analysis. The primary tools currently include:
+
+*   **`web_search`**: Uses DuckDuckGo to find general information and recent news.
+*   **`nrel_solar_data`**: Fetches solar irradiance data from NREL (National Renewable Energy Laboratory) API. Falls back to estimations if API key is missing or fails.
+*   **`real_solar_calculator`**: Calculates potential solar energy production based on location, capacity, and NREL solar data.
+*   **`openweathermap_data`**: Retrieves current weather conditions from OpenWeatherMap API. Falls back to an alternative source if API key is missing.
+*   **`geocode_location`**: Converts location names (e.g., "Austin, Texas") into geographic coordinates (latitude, longitude) using Nominatim (OpenStreetMap).
+*   **`energy_news_search`**: A specialized search for recent energy industry news.
+*   **`market_analysis_search`**: Searches for market analysis and regulatory information.
+*   **`cost_model` (Stubbed)**: Provides estimated capital and operational expenditures based on project capacity.
+*   **`transmission_cost` (Stubbed)**: Estimates transmission costs based on distance and energy.
+*   **`grid_connection_info` (Stubbed)**: Returns stubbed information about grid connection.
+
+The agent intelligently selects which tool(s) to use based on the user's query.
 
 ---
 
-## 7. Dependencies
+## 7. Demo Interaction
+
+Here's an example of the agent responding to a query and the tools it invokes:
+
+**User Query:** `Is it feasible to build a solar power station at 37.2, -121.9?`
+
+**Agent Execution Log (summary):**
+```
+> Entering new AgentExecutor chain...
+
+Invoking: `nrel_solar_data` with `{\'lat\': 37.2, \'lon\': -121.9}`
+[NREL API call, falls back to estimation due to missing API key in this demo]
+--> Output: 
+**Estimated Solar Resource Data for (37.2, -121.9)**
+Note: These are rough estimates. For accurate data, sign up for a free NREL API key.
+Average Global Horizontal Irradiance: ~4.5 kWh/m²/day
+Average Direct Normal Irradiance: ~5.5 kWh/m²/day
+Latitude zone: 37.2° (mid-latitude)
+
+Invoking: `real_solar_calculator` with `{\'lat\': 37.2, \'lon\': -121.9, \'capacity_mw\': 10}` 
+[Calls nrel_solar_data internally, then calculates]
+--> Output:
+**Real Solar Production Analysis**
+Location: (37.2, -121.9)
+System Size: 10.0 MW AC (12.0 MW DC)
+Panel Tilt: 37.2°
+**Solar Resource:**
+Annual GHI: 5.00 kWh/m²/day (Note: Uses a default/fallback if NREL direct value extraction fails)
+**Performance Estimates:**
+Year 1 Production: 18,615 MWh
+Capacity Factor: 21.25%
+Specific Yield: 1,861,500 kWh/kWp
+25-Year Total: 437,452 MWh
+**System Assumptions:**
+DC/AC Ratio: 1.2
+System Efficiency: 85.0%
+Annual Degradation: 0.5%
+
+Invoking: `cost_model` with `{\'ac_mw\': 10}`
+--> Output: (10.0, 0.2) (Represents $10M CapEx, $0.2M/yr OpEx)
+
+> Finished chain.
+```
+
+**Final Agent Response:**
+```
+**FEASIBILITY ANALYSIS**
+
+**Location & Solar Resource:**
+The location at (37.2, -121.9) has an average Global Horizontal Irradiance of approximately 4.5 kWh/m²/day, making it suitable for solar energy generation.
+
+**Technical Assessment:**
+- System Size: 10.0 MW AC (12.0 MW DC)
+- Year 1 Production: 18,615 MWh
+- 25-Year Total Production: 437,452 MWh
+- Capacity Factor: 21.25%
+- Specific Yield: 1,861,500 kWh/kWp
+
+**Financial Analysis:**
+- Capital Cost: $10 million
+- Operating Cost: $0.2 million/year
+- Payback Period: Calculated based on specific financial parameters
+
+**Market Conditions:**
+Further market analysis and incentives specific to the location are recommended to assess the economic viability comprehensively.
+
+**Recommendation:**
+Based on the solar potential, technical assessment, and initial cost estimates, building a 10 MW solar power station at (37.2, -121.9) is feasible. Conduct a detailed financial analysis and market research to determine the project\'s profitability and consider available incentives for solar projects in the area.
+```
+*(Note: The `real_solar_calculator`'s Capacity Factor and Specific Yield in the live demo output seem unusually high. This might indicate an issue in the tool's internal calculation or units that needs review. The GHI used by `real_solar_calculator` also defaulted to 5.00 despite NREL tool estimating 4.5, suggesting a parsing/fallback path was taken.)*
+
+
+---
+
+## 8. Dependencies
 
 The project uses the following key dependencies (see `requirements.txt` for complete list):
 
-*   **LangChain** (0.1.0) - Core framework for agent orchestration
-*   **Transformers** (4.36.2) - Hugging Face model loading
-*   **ChromaDB** (0.4.22) - Vector database for RAG
-*   **Sentence Transformers** (2.2.2) - Embeddings for RAG
-*   **PyTorch** (2.1.2) - ML framework for model inference
-*   **PyYAML** (6.0.1) - Configuration file parsing
-*   **Python-dotenv** (1.0.1) - Environment variable management
+*   **LangChain** (`langchain~=0.3.25`, `langchain-core~=0.3.63`) - Core framework.
+*   **`langchain-openai`** (`~=0.3.18`) - OpenAI integration for LangChain.
+*   **`openai`** (`~=1.82.1`) - Official OpenAI Python client.
+*   **ChromaDB** (`~=0.4.22`) - Vector database for RAG (if used).
+*   **Sentence Transformers** (`~=2.2.2`) - Embeddings for RAG (if used).
+*   **PyYAML** (`~=6.0.1`) - Configuration file parsing.
+*   **Python-dotenv** (`~=1.0.1`) - Environment variable management.
+*   **Requests** (`~=2.31.0`) - For making HTTP requests in API tools.
 
 ---
 
-## 8. Potential Future Enhancements
+## 9. Potential Future Enhancements
 
 This project serves as a foundation. Potential areas for future development include:
 
-*   **Integration of Real APIs:** Replace more stubbed tools with calls to actual external APIs.
-*   **Expanded RAG Document Set:** Utilize a more diverse and larger set of documents for the RAG pipeline.
-*   **Implementation of Robust Unit & Integration Tests:** Add comprehensive tests in the `tests/` directory.
-*   **Advanced Error Handling & Resilience:** Further improve error handling.
-*   **Asynchronous Operations:** For tools involving network calls, implement asynchronous operations.
-*   **Service-Oriented Architecture:** Expose the agent via a REST API (e.g., using FastAPI).
-*   **Evaluation Framework:** Develop a systematic framework to evaluate and improve agent responses.
-*   **User Interface:** Create a simple web-based UI.
-*   **Support for More Data Sources:** Extend tool capabilities for grid planning.
-*   **Sophisticated Cost Modeling:** Enhance cost models. 
+*   **Refine Tool Calculations:** Review and improve the accuracy of tools like `real_solar_calculator`.
+*   **Full API Integration for All Tools:** Replace any remaining stubbed logic with robust API calls.
+*   **Expanded RAG Document Set:** If RAG is a focus, utilize a more diverse and larger set of documents.
+*   **Implementation of Robust Unit & Integration Tests.**
+*   **Advanced Error Handling & Resilience.**
+*   **Asynchronous Operations for all API tools.**
+*   **Service-Oriented Architecture (e.g., FastAPI).**
+*   **Evaluation Framework for agent responses.**
+*   **User Interface.**
+*   **Sophisticated Financial Modeling:** More detailed payback period, LCOE, etc.
+``` 
