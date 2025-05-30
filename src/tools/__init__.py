@@ -23,6 +23,21 @@ from .api_tools import (
     market_analysis_search
 )
 
+# Import the new RAG tool
+# This assumes that the project root (containing the top-level 'agent' directory)
+# is in PYTHONPATH, which is typical when running scripts from the project root.
+from agent.tools.rag_tool import ask_rag
+
+# Import the Tool class from langchain.tools
+from langchain.tools import BaseTool, Tool
+
+# Wrap ask_rag into a LangChain Tool
+rag_lookup_tool = Tool(
+    name="rag_lookup",
+    func=ask_rag,
+    description="Answers questions about solar energy by looking up information in NREL technical documents (PVWatts v5 Technical Manual). Use for specific technical questions or cost benchmarks."
+)
+
 # You can add other tool modules here, e.g.:
 # from .weather_api_tool import get_weather_from_api
 
@@ -42,12 +57,11 @@ __all__ = [
     'geocode_location',
     'energy_news_search',
     'real_solar_calculator',
-    'market_analysis_search'
+    'market_analysis_search',
+    'rag_lookup_tool'
 ]
 
 # Optional: A function to get all LangChain decorated tools
-from langchain.tools import BaseTool
-
 def get_all_langchain_tools() -> list[BaseTool]:
     """Returns a list of all LangChain tools defined in this module."""
     lc_tools = []
@@ -70,6 +84,9 @@ def get_enhanced_tools() -> list[BaseTool]:
         geocode_location,
         energy_news_search,
         market_analysis_search,
+        
+        # Add the new RAG tool
+        rag_lookup_tool,
         
         # Keep useful stubbed tools
         cost_model,

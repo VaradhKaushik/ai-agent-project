@@ -2,9 +2,9 @@ import argparse
 import sys
 
 # Use explicit relative imports when running as a module within src
-from utils.logging_config import setup_logging, get_logger
-from agent.agent_core import SolarFeasibilityAgent
-from utils.config import get_config
+from .utils.logging_config import setup_logging, get_logger
+from .agent.agent_core import SolarFeasibilityAgent
+from .utils.config import get_config
 
 # Setup logging first, as other modules might use it upon import
 setup_logging() 

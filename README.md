@@ -12,6 +12,29 @@ This system is designed to assist in the initial stages of evaluating potential 
 
 ---
 
+## Highlight on Tools
+
+This project features a range of tools to showcase a comprehensive solar feasibility analysis. Here's a breakdown:
+
+**Implemented & Functional Tools (Real Data/APIs):**
+*   **`web_search`**: Leverages DuckDuckGo for general web searches and up-to-date information.
+*   **`nrel_solar_data`**: Integrates with the NREL API to fetch crucial solar irradiance data. Includes fallback estimations.
+*   **`real_solar_calculator`**: Performs calculations for potential solar energy production based on location, system capacity, and NREL data.
+*   **`openweathermap_data`**: Connects to OpenWeatherMap API for current weather conditions, with fallback mechanisms.
+*   **`geocode_location`**: Utilizes Nominatim (OpenStreetMap) for converting textual location descriptions into precise geographic coordinates.
+*   **`energy_news_search`**: A specialized tool for finding recent news within the energy sector.
+*   **`market_analysis_search`**: Designed to search for market analysis reports and regulatory information relevant to solar projects.
+
+**Placeholder/Stubbed Tools (Illustrative):**
+These tools are currently implemented with simplified or dummy logic to demonstrate the agent's capability to integrate with a broader set of functionalities. They represent areas for future development with real data sources or more complex models.
+*   **`cost_model`**: Provides placeholder estimates for capital (CapEx) and operational expenditures (OpEx).
+*   **`transmission_cost`**: Offers stubbed estimations for the costs associated with electricity transmission.
+*   **`grid_connection_info`**: Returns illustrative information regarding grid connection feasibility and requirements.
+
+This blend of operational and conceptual tools allows for a realistic demonstration of an AI agent's potential in the renewable energy domain, while also highlighting pathways for future enhancement.
+
+---
+
 ## 2. Tech Stack
 
 | Layer                 | Choice                                           | Notes                                                                 |
@@ -102,6 +125,39 @@ ai-agent-project/
 5.  **Review Configuration (`config/config.yaml`):**
     *   The LLM provider is now primarily OpenAI.
     *   You can adjust tool-specific default parameters in `config.yaml` if needed.
+
+---
+
+## RAG Quick Start (New)
+
+To use the RAG capabilities with the two NREL PDFs:
+
+1.  **Ensure PDFs are in `data/source_docs/`**:
+    - `60272.pdf` (PVWatts v5 Technical Manual)
+    - `86621.pdf` (U.S. Solar PV System & Storage Cost Benchmarks Q1 2023)
+    *(You may need to download these manually and place them in the specified directory)*
+
+2.  **Install dependencies (if you haven't already):**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+3.  **Ingest documents into ChromaDB (one-time setup per document set):**
+    ```bash
+    python -m scripts.ingest_docs
+    ```
+    This will process the PDFs and create a local vector store in `data/chroma/`.
+
+4.  **Query using the RAG-enabled agent:**
+    The `rag_lookup` tool will be automatically used by the agent if your query is best answered by the ingested documents.
+    ```bash
+    python src/app_main.py --query "What is the BOS cost per watt in 2023?"
+    ```
+    Or in interactive mode:
+    ```bash
+    python src/app_main.py --interactive
+    ```
+    Then ask: `What is the BOS cost per watt in 2023?`
 
 ---
 
